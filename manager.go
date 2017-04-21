@@ -214,6 +214,7 @@ func futureEvents(es []*calendar.Event) []*calendar.Event {
 
 var (
   done = make(chan bool, 1)
+  toggled = make(chan bool, 1)
   defaultColour, _ = playbulb.ColourFromHexString("00FF00FF")
   defaultEffect = playbulb.NewEffect(playbulb.SOLID, defaultColour, 10)
 )
@@ -244,6 +245,19 @@ func main() {
   if err != nil {
     fmt.Println("Connection error:", err)
   }
+
+  var canBook = true
+
+  candle.OnToggle(func (isOn bool) {
+    if canBook {
+      BookEvent(srv)
+      c, _ := playbulb.ColourFromHexString("000000FF")
+      candle.SetColour(c)
+      time.Sleep(2 * time.Second)
+    }
+
+    toggled <- true
+  })
 
   defer candle.Disconnect()
 
@@ -277,6 +291,9 @@ func main() {
       fmt.Printf("No upcoming events found.\n")
     }
 
-    <-time.After(time.Minute * 1)
+    select {
+      case <-toggled:
+      case <-time.After(time.Minute * 1):
+    }
   }
 }
