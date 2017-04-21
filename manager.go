@@ -147,13 +147,13 @@ func effectFromEvent(e *calendar.Event, canBookNext bool) *playbulb.Effect {
     switch {
       case delta < (time.Minute * 2):
         c, _ := playbulb.ColourFromHexString("0000FF00")
-        return playbulb.NewEffect(playbulb.PULSE, c, 30)
+        return playbulb.NewEffect(playbulb.FLASH, c, 30)
       case delta < (time.Minute * 5):
         c, _ := playbulb.ColourFromHexString("0000FF00")
-        return playbulb.NewEffect(playbulb.PULSE, c, 120)
+        return playbulb.NewEffect(playbulb.FLASH, c, 120)
       case delta < (time.Minute * 15):
         c, _ := playbulb.ColourFromHexString("0000FF00")
-        return playbulb.NewEffect(playbulb.PULSE, c, 230)
+        return playbulb.NewEffect(playbulb.FLASH, c, 230)
       default:
         fmt.Println("default effect")
         return defaultEffect
@@ -162,13 +162,13 @@ func effectFromEvent(e *calendar.Event, canBookNext bool) *playbulb.Effect {
     switch {
       case delta < (time.Minute * 2):
         c, _ := playbulb.ColourFromHexString("00FF0000")
-        return playbulb.NewEffect(playbulb.PULSE, c, 30)
+        return playbulb.NewEffect(playbulb.FLASH, c, 30)
       case delta < (time.Minute * 5):
         c, _ := playbulb.ColourFromHexString("00FF0000")
-        return playbulb.NewEffect(playbulb.PULSE, c, 120)
+        return playbulb.NewEffect(playbulb.FLASH, c, 120)
       case delta < (time.Minute * 15):
         c, _ := playbulb.ColourFromHexString("00FF0000")
-        return playbulb.NewEffect(playbulb.PULSE, c, 230)
+        return playbulb.NewEffect(playbulb.FLASH, c, 230)
       default:
         fmt.Println("default effect")
         return defaultEffect
@@ -219,11 +219,14 @@ func futureEvents(es []*calendar.Event) []*calendar.Event {
   now := time.Now()
 
   fE := make([]*calendar.Event, 0)
+  fmt.Println("now:", now)
 
   for _, e := range es {
+    fmt.Println("FE:", e.Start.DateTime)
     if e.Start.DateTime != "" {
       t, _ := time.Parse(time.RFC3339, e.Start.DateTime)
-      if t.Unix() > now.Unix() {
+      fmt.Printf("%d > %d = %s\n", t.Unix(), now.Unix(), t.Unix() > now.Unix())
+      if t.Unix() < now.Unix() {
         fE = append(fE, e)
       }
     }
