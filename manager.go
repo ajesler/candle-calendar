@@ -20,6 +20,30 @@ import (
   "github.com/ajesler/playbulb-candle"
 )
 
+func BookEvent(srv *calendar.Service) (*calendar.Event, error) {
+  // TODO: Use the current DateTime.
+  // TODO: Set the correct room.
+  // TODO: Set the correct calendar ID.
+  timezone := "Pacific/Auckland"
+
+  event := &calendar.Event {
+    Summary: "A Meeting",
+    Location: "This pod",
+    Description: "Booked using a Candle!",
+    Start: &calendar.EventDateTime {
+      DateTime: time.Now().Format(time.RFC3339),
+      TimeZone: timezone,
+    },
+    End: &calendar.EventDateTime {
+      DateTime: time.Now().Add(time.Minute * 30).Format(time.RFC3339),
+      TimeZone: timezone,
+    },
+  }
+
+  calendarId := "primary"
+  return srv.Events.Insert(calendarId, event).Do()
+}
+
 // based on https://developers.google.com/google-apps/calendar/quickstart/go
 
 // getClient uses a Context and Config to retrieve a Token
