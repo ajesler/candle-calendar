@@ -137,22 +137,42 @@ func effectFromEvent(e *calendar.Event, canBookNext bool) *playbulb.Effect {
   delta := t.Sub(now)
   fmt.Println("delta is ", delta)
 
-  switch {
-    case delta > (time.Hour * 2):
-      fmt.Println("> 2 hours")
-      c, _ := playbulb.ColourFromHexString("00000000")
-      return playbulb.NewEffect(playbulb.SOLID, c, 0)
-    case delta > (time.Minute * 20):
-      fmt.Println("> 20 minutes")
-      c, _ := playbulb.ColourFromHexString("0000FFFF")
-      return playbulb.NewEffect(playbulb.SOLID, c, 0)
-    case delta > (time.Minute * 10):
-      fmt.Println("> 10 minutes")
-      c, _ := playbulb.ColourFromHexString("000000FF")
-      return playbulb.NewEffect(playbulb.SOLID, c, 0)
-    default:
-      fmt.Println("default effect")
-      return defaultEffect
+  if delta > (time.Minute * 30) {
+    // turn off
+    c, _ := playbulb.ColourFromHexString("00000000")
+    return playbulb.NewEffect(playbulb.SOLID, c, 0)
+  }
+
+  if canBookNext {
+    switch {
+      case delta < (time.Minute * 2):
+        c, _ := playbulb.ColourFromHexString("0000FF00")
+        return playbulb.NewEffect(playbulb.PULSE, c, 30)
+      case delta < (time.Minute * 5):
+        c, _ := playbulb.ColourFromHexString("0000FF00")
+        return playbulb.NewEffect(playbulb.PULSE, c, 120)
+      case delta < (time.Minute * 15):
+        c, _ := playbulb.ColourFromHexString("0000FF00")
+        return playbulb.NewEffect(playbulb.PULSE, c, 230)
+      default:
+        fmt.Println("default effect")
+        return defaultEffect
+    }
+  } else {
+    switch {
+      case delta < (time.Minute * 2):
+        c, _ := playbulb.ColourFromHexString("00FF0000")
+        return playbulb.NewEffect(playbulb.PULSE, c, 30)
+      case delta < (time.Minute * 5):
+        c, _ := playbulb.ColourFromHexString("00FF0000")
+        return playbulb.NewEffect(playbulb.PULSE, c, 120)
+      case delta < (time.Minute * 15):
+        c, _ := playbulb.ColourFromHexString("00FF0000")
+        return playbulb.NewEffect(playbulb.PULSE, c, 230)
+      default:
+        fmt.Println("default effect")
+        return defaultEffect
+    }
   }
 }
 
@@ -181,7 +201,7 @@ func nextEvent(es []*calendar.Event) *calendar.Event {
 }
 
 func canBookNextSlot(curEvent, nextEvent *calendar.Event) bool {
-  if nextEvent == nil {
+  if nextEvent == nil || curEvent == nil {
     return true
   }
 
@@ -215,7 +235,7 @@ func futureEvents(es []*calendar.Event) []*calendar.Event {
 var (
   done = make(chan bool, 1)
   toggled = make(chan bool, 1)
-  defaultColour, _ = playbulb.ColourFromHexString("00FF00FF")
+  defaultColour, _ = playbulb.ColourFromHexString("00000000")
   defaultEffect = playbulb.NewEffect(playbulb.SOLID, defaultColour, 10)
 )
 
@@ -289,6 +309,7 @@ func main() {
       candle.SetEffect(effect)
     } else {
       fmt.Printf("No upcoming events found.\n")
+      candle.SetEffect(defaultEffect)
     }
 
     select {
