@@ -122,7 +122,7 @@ func nextEvents(srv *calendar.Service) []*calendar.Event {
   t := time.Now().Format(time.RFC3339)
 
   events, err := srv.Events.List("primary").ShowDeleted(false).
-    SingleEvents(true).TimeMin(t).MaxResults(3).OrderBy("startTime").Do()
+    SingleEvents(true).TimeMin(t).MaxResults(5).OrderBy("startTime").Do()
 
   if err != nil {
     log.Fatalf("Unable to retrieve next ten of the user's events. %v", err)
@@ -226,7 +226,7 @@ func futureEvents(es []*calendar.Event) []*calendar.Event {
     if e.Start.DateTime != "" {
       t, _ := time.Parse(time.RFC3339, e.Start.DateTime)
       fmt.Printf("%d > %d = %s\n", t.Unix(), now.Unix(), t.Unix() > now.Unix())
-      if t.Unix() < now.Unix() {
+      if t.Unix() > now.Unix() {
         fE = append(fE, e)
       }
     }
@@ -305,7 +305,7 @@ func main() {
       curEvent := currentEvent(events)
       nEvent := nextEvent(fEvents)
 
-      canBook := canBookNextSlot(curEvent, nEvent)
+      canBook = canBookNextSlot(curEvent, nEvent)
 
       effect := effectFromEvent(nEvent, canBook)
       fmt.Println("Setting effect to", effect)
